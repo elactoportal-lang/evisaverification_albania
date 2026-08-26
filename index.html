@@ -1,267 +1,1075 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Visa Verification Portal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Visa Verification</title>
+
   <style>
-    :root{
-      --brand-red:#d91414;
-      --dark:#0d0a0a;
-      --muted:#f0f5f8;
-      --panel:#fff;
-      --accent:#222;
-      --watermark-color: rgba(0,0,0,0.06);
-      font-family: Georgia, "Times New Roman", serif;
+    * {
+      box-sizing: border-box;
     }
-    body{margin:0;background:#eef5f8;color:#18222b;min-height:100vh;display:flex;flex-direction:column;}
-    /* Top bar */
-    .topbar{background:var(--dark);color:#fff;padding:.75rem max(1rem,calc((100% - 1160px)/2));display:flex;align-items:center;justify-content:space-between;}
-    .brand{display:flex;align-items:center;gap:12px;}
-    .crest{
-      width:48px;height:48px;border-radius:50%;background:#fff;color:var(--brand-red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;border:3px solid #d7b05c;
+
+    :root {
+      --red: #f00000;
+      --black: #050000;
+      --background: #edf4f8;
+      --border: #cbd7df;
+      --text: #111111;
     }
-    .brand-text{line-height:1;}
-    .brand-text small{display:block;opacity:.75;font-size:12px;}
-    .auth-buttons button{margin-left:8px;border-radius:6px;padding:.45rem .65rem;border:1px solid rgba(255,255,255,.08);background:transparent;color:#fff;}
-    /* Header */
-    header.hero{background:var(--brand-red);padding:32px max(1rem,calc((100% - 1160px)/2));color:#fff;font-weight:700;font-size:30px;border-bottom:5px solid #b20f14;}
-    /* main */
-    main{flex:1;padding:42px 18px;max-width:1160px;margin:0 auto;width:100%;box-sizing:border-box;}
-    .card{background:var(--panel);border-radius:2px;padding:36px;border:1px solid #d6e0e6;box-shadow:0 8px 24px rgba(24,34,43,.07);}
-    .form-row{display:flex;justify-content:center;}
-    form{max-width:700px;width:100%;}
-    label{display:block;font-size:13px;color:#333;margin-bottom:6px;}
-    input[type="text"]{width:100%;box-sizing:border-box;padding:13px;border-radius:2px;border:1px solid #aebcc5;font-size:15px;background:#fbfeff;font-family:inherit;}
-    input[type="text"]:focus{outline:3px solid rgba(217,20,20,.18);border-color:var(--brand-red);}
-    .btn{
-      display:inline-block;background:var(--brand-red);color:#fff;padding:13px 18px;border-radius:3px;border:none;font-weight:700;cursor:pointer;margin-top:12px;width:100%;font-family:inherit;
-      box-shadow:0 3px 0 rgba(0,0,0,0.08);
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
     }
-    .form-actions{display:flex;gap:12px;margin-top:14px;align-items:center;}
-    .form-actions .btn{flex:1;}
-    .row{display:flex;gap:18px;align-items:flex-start;}
-    .col{flex:1;}
-    /* result panel */
-    .result{margin-top:18px;padding:18px;border:1px solid #dcdfe2;border-radius:6px;background:linear-gradient(180deg,#fff,#fbfbfb);position:relative;overflow:hidden;}
-    .watermark{
-      position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-12deg);
-      font-size:64px;color:var(--watermark-color);pointer-events:none;font-weight:800;letter-spacing:8px;
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+
+      background: var(--background);
+      color: var(--text);
+
+      font-family: Arial, Helvetica, sans-serif;
     }
-    .status{
-      display:flex;align-items:center;gap:12px;margin-bottom:10px;
+
+
+    /* =========================
+       TOP HEADER
+       ========================= */
+
+    .topbar {
+      height: 57px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 24px 0 60px;
+
+      background: var(--black);
+      color: white;
     }
-    .status .dot{width:12px;height:12px;border-radius:50%;background:#4caf50;box-shadow:0 0 10px rgba(76,175,80,0.35);}
-    .details{display:grid;grid-template-columns: 340px 1fr;gap:18px;align-items:start;}
-    @media (max-width: 720px){
-      .details{grid-template-columns:1fr;}
-      .doc{border-left:none;padding-left:0;border-top:1px solid rgba(0,0,0,0.04);padding-top:12px;}
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .photo{width:100%;background:#f6f8fa;border:1px dashed #d7dade;padding:8px;border-radius:4px;display:flex;align-items:center;justify-content:center;}
-    .photo-placeholder{width:210px;height:260px;border:1px solid #ccd5da;background:#edf2f4;display:flex;align-items:center;justify-content:center;text-align:center;color:#687782;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;}
-    .doc{border-left:1px solid rgba(0,0,0,0.04);padding-left:16px;}
-    .doc h3{margin:0 0 8px 0;}
-    .doc table{width:100%;font-size:14px;border-collapse:collapse;}
-    .doc td{padding:6px 4px;vertical-align:top;border-bottom:1px dashed #eee;}
-    .doc td.label{width:42%;font-weight:700;color:#333;}
-    .doc td.value{color:#222;}
-    /* small controls */
-    .controls{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
-    .btn-ghost{background:#fff;border:1px solid #aebcc5;padding:8px 12px;border-radius:3px;cursor:pointer;font-family:inherit;}
-    /* footer */
-    footer{background:#0b0707;color:#fff;padding:34px 18px;margin-top:28px;border-top:4px solid #d7b05c;}
-    .footer-grid{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;gap:40px;}
-    /* spinner */
-    .spinner{width:20px;height:20px;border-radius:50%;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--brand-red);animation:spin 1s linear infinite;display:inline-block;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    /* print style */
-    @media print{
-      header.topbar, header.hero, .controls, .auth-buttons{display:none}
-      body{background:white}
-      .watermark{display:none}
+
+    .brand-logo {
+      width: 58px;
+      height: 31px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid white;
+
+      color: white;
+
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: .5px;
     }
-    /*  */
-    .eyebrow{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:12px;color:#687782;font-weight:700;}
-    .error-message{display:none;margin-top:16px;padding:12px 14px;border-left:4px solid var(--brand-red);background:#fff1f1;color:#7e1717;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;}
+
+    .brand-text {
+      line-height: 1.1;
+    }
+
+    .brand-text strong {
+      display: block;
+
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .brand-text small {
+      display: block;
+
+      margin-top: 3px;
+
+      color: #a6adb1;
+      font-size: 9px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-button {
+      height: 43px;
+
+      padding: 0 15px;
+
+      border: 1px solid var(--red);
+      border-radius: 7px;
+
+      background: transparent;
+      color: white;
+
+      font-size: 14px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    .header-button.login {
+      background: var(--red);
+    }
+
+    .language {
+      display: flex;
+      align-items: center;
+    }
+
+    .language span {
+      height: 25px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 8px;
+
+      border: 1px solid var(--red);
+
+      color: white;
+
+      font-size: 13px;
+    }
+
+    .language span:first-child {
+      border-right: 0;
+      border-radius: 6px 0 0 6px;
+    }
+
+    .language span:last-child {
+      border-radius: 0 6px 6px 0;
+    }
+
+
+    /* =========================
+       RED TITLE BAR
+       ========================= */
+
+    .hero {
+      height: 69px;
+
+      display: flex;
+      align-items: center;
+
+      padding-left: 60px;
+
+      background: var(--red);
+      color: white;
+
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+
+    /* =========================
+       MAIN
+       ========================= */
+
+    main {
+      flex: 1;
+
+      padding: 48px 24px 49px;
+
+      background: var(--background);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1216px;
+
+      min-height: 280px;
+
+      margin: 0 auto;
+
+      padding: 36px 20px;
+
+      background: white;
+
+      border: 1px solid var(--border);
+      border-radius: 5px;
+    }
+
+    .form {
+      width: 384px;
+      max-width: 100%;
+
+      margin: 0 auto;
+    }
+
+
+    /* =========================
+       FORM
+       ========================= */
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+
+      margin-bottom: 7px;
+
+      color: #111;
+
+      font-size: 15px;
+    }
+
+    input {
+      width: 100%;
+      height: 43px;
+
+      padding: 0 13px;
+
+      border: 1px solid #c5d1db;
+      border-radius: 6px;
+
+      background: white;
+
+      color: #222;
+
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #a9b5c0;
+    }
+
+    input:focus {
+      border-color: var(--red);
+
+      box-shadow: 0 0 0 2px rgba(240, 0, 0, .08);
+    }
+
+    .verify-button {
+      width: 100%;
+      height: 43px;
+
+      margin-top: -4px;
+
+      border: 0;
+      border-radius: 6px;
+
+      background: var(--red);
+      color: white;
+
+      font-size: 15px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    .verify-button:hover {
+      background: #d90000;
+    }
+
+    .verify-button:disabled {
+      opacity: .7;
+      cursor: wait;
+    }
+
+
+    /* =========================
+       ERROR
+       ========================= */
+
+    .error {
+      display: none;
+
+      margin-top: 14px;
+      padding: 11px 13px;
+
+      border-left: 3px solid var(--red);
+
+      background: #fff1f1;
+      color: #8b1515;
+
+      font-size: 13px;
+    }
+
+
+    /* =========================
+       RESULT
+       ========================= */
+
+    #resultArea {
+      display: none;
+
+      width: 100%;
+      max-width: 900px;
+
+      margin: 28px auto 0;
+    }
+
+    .result {
+      padding: 22px;
+
+      background: white;
+
+      border: 1px solid #d7dfe4;
+      border-radius: 5px;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+
+      border-bottom: 1px solid #e5eaed;
+    }
+
+    .result-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .result-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      color: #2e7d32;
+
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+
+      border-radius: 50%;
+
+      background: #4caf50;
+    }
+
+    .result-content {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 25px;
+    }
+
+    .photo {
+      min-height: 260px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #f4f7f9;
+
+      border: 1px dashed #ccd5db;
+      border-radius: 4px;
+    }
+
+    .photo-placeholder {
+      width: 180px;
+      height: 225px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-align: center;
+
+      background: #e9eef1;
+
+      border: 1px solid #ccd5da;
+
+      color: #687782;
+
+      font-size: 13px;
+    }
+
+    .information h3 {
+      margin: 0 0 12px;
+
+      font-size: 17px;
+    }
+
+    table {
+      width: 100%;
+
+      border-collapse: collapse;
+
+      font-size: 14px;
+    }
+
+    td {
+      padding: 8px 5px;
+
+      border-bottom: 1px dashed #e4e8eb;
+
+      vertical-align: top;
+    }
+
+    td:first-child {
+      width: 42%;
+
+      font-weight: bold;
+    }
+
+    .result-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+
+      margin-top: 15px;
+    }
+
+    .secondary-button {
+      padding: 8px 14px;
+
+      border: 1px solid #b8c4cc;
+      border-radius: 4px;
+
+      background: white;
+
+      cursor: pointer;
+    }
+
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    footer {
+      min-height: 296px;
+
+      padding: 91px 60px 20px;
+
+      background: var(--black);
+      color: white;
+    }
+
+    .footer-grid {
+      width: 100%;
+      max-width: 1100px;
+
+      margin: 0 auto;
+
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+
+      gap: 90px;
+    }
+
+    .footer-column h3 {
+      margin: 0 0 18px;
+
+      font-size: 20px;
+    }
+
+    .footer-column ul {
+      list-style: none;
+
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer-column li {
+      margin-bottom: 7px;
+
+      font-size: 15px;
+    }
+
+    .footer-info {
+      color: #8aa2b0;
+
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+
+    /* =========================
+       LOADING
+       ========================= */
+
+    .spinner {
+      width: 17px;
+      height: 17px;
+
+      display: inline-block;
+      vertical-align: middle;
+
+      margin-right: 7px;
+
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: white;
+
+      border-radius: 50%;
+
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 800px) {
+
+      .topbar {
+        padding: 10px 20px;
+      }
+
+      .hero {
+        padding-left: 20px;
+        font-size: 27px;
+      }
+
+      main {
+        padding: 28px 15px;
+      }
+
+      footer {
+        padding: 50px 25px 25px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+
+      .footer-info {
+        grid-column: 1 / -1;
+      }
+
+      .result-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    @media (max-width: 500px) {
+
+      .brand-text {
+        display: none;
+      }
+
+      .language {
+        display: none;
+      }
+
+      .topbar {
+        padding: 10px 15px;
+      }
+
+      .hero {
+        padding-left: 15px;
+        font-size: 24px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .footer-info {
+        grid-column: auto;
+      }
+    }
+
+
+    /* =========================
+       PRINT
+       ========================= */
+
+    @media print {
+
+      .topbar,
+      .hero,
+      footer,
+      .result-buttons {
+        display: none;
+      }
+
+      body {
+        background: white;
+      }
+
+      main {
+        padding: 0;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="topbar" role="banner">
-    <div class="brand" aria-hidden="true">
-      <div class="crest" title="Placeholder crest">CR</div>
-      <div class="brand-text">
-        <strong>e-Visa Verification Portal</strong>
-        <small>Immigration and visa services</small>
-      </div>
-    </div>
-    <div class="auth-buttons" aria-hidden="true">
-      <button>Log in</button><button>Register</button>
-    </div>
-  </div>
 
-  <header class="hero" role="heading" aria-level="1">
-    Verify visa
+
+<body>
+
+
+  <!-- HEADER -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-logo">
+        eVISA
+      </div>
+
+      <div class="brand-text">
+        <strong>Visa Verification Portal</strong>
+        <small>Electronic visa services</small>
+      </div>
+
+    </div>
+
+
+    <div class="header-right">
+
+      <button class="header-button login">
+        Log in
+      </button>
+
+      <button class="header-button">
+        Register
+      </button>
+
+      <div class="language">
+        <span>EN</span>
+        <span>AL</span>
+      </div>
+
+    </div>
+
   </header>
 
+
+  <!-- TITLE -->
+
+  <div class="hero">
+    Verify visa
+  </div>
+
+
+  <!-- MAIN -->
+
   <main>
-    <div class="card" role="main" aria-labelledby="verify-title" style="position:relative;">
-      <div style="max-width:900px;margin:0 auto;">
-        <form id="verifyForm" onsubmit="return false;" aria-labelledby="verify-title">
-          <div style="text-align:center;margin-bottom:12px;">
-            <div class="eyebrow">Secure document check</div>
-            <p style="margin:8px 0 0;color:#5f707b;">Enter the details exactly as they appear on your visa.</p>
-          </div>
 
-          <div style="display:grid;grid-template-columns:1fr;gap:12px;">
-            <div>
-              <label for="visaNumber">Visa Number</label>
-              <input id="visaNumber" type="text" placeholder="Visa Number (AL0023467e )" autocomplete="off" />
-            </div>
-            <div>
-              <label for="passportNumber">Passport Number</label>
-              <input id="passportNumber" type="text" placeholder="Passport Number (XA6897684 )" autocomplete="off" />
-            </div>
-          </div>
+    <section class="card">
 
-          <div class="form-actions">
-            <button id="verifyBtn" class="btn" type="button" onclick="startVerify()">Verify</button>
-            <button class="btn-ghost" type="button" onclick="clearForm()">Back</button>
-          </div>
+      <form
+        id="verifyForm"
+        class="form"
+        onsubmit="return false;"
+      >
 
-          <div id="resultArea" style="display:none;margin-top:18px;">
-            <div class="result" role="region" aria-live="polite" aria-label="Verification result">
-              <div class="status">
-                <div style="flex:1">
-                  <strong id="statusTitle" style="font-size:16px;color:#222">Verification result</strong>
-                </div>
-                <div style="text-align:right;">
-                  <span id="statusDot" class="dot" aria-hidden="true"></span>
-                  <span id="statusValue" style="font-weight:700;color:#2e7d32"> VERIFIED</span>
-                </div>
+        <div class="form-group">
+
+          <label for="visaNumber">
+            Visa Number
+          </label>
+
+          <input
+            id="visaNumber"
+            type="text"
+            placeholder="Visa Number"
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="passportNumber">
+            Passport Number
+          </label>
+
+          <input
+            id="passportNumber"
+            type="text"
+            placeholder="Passport Number"
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <button
+          id="verifyButton"
+          class="verify-button"
+          type="button"
+          onclick="startVerify()"
+        >
+          Verify
+        </button>
+
+
+        <div
+          id="errorMessage"
+          class="error"
+        ></div>
+
+
+        <!-- RESULT -->
+
+        <div id="resultArea">
+
+          <div class="result">
+
+            <div class="result-header">
+
+              <div class="result-title">
+                Verification result
               </div>
 
-              <div class="details">
-                <div class="col photo" aria-hidden="true">
-                  <div class="photo-placeholder" aria-label="Applicant photo unavailable">Applicant photo unavailable</div>
-                </div>
+              <div class="result-status">
 
-                <div class="col doc">
-                  <h3>Visa information / Të dhënat e vizës</h3>
-                  <table>
-                    <tr><td class="label">Visa number / Numri i vizës</td><td class="value" id="outVisa">—</td></tr>
-                    <tr><td class="label">Passport number / Numri i pasaportës</td><td class="value" id="outPassport">—</td></tr>
-                    <tr><td class="label">Name / Emri</td><td class="value" id="outName">—</td></tr>
-                    <tr><td class="label">Nationality / Shtetësia</td><td class="value" id="outNat">—</td></tr>
-                    <tr><td class="label">Valid from / E vlefshme nga</td><td class="value" id="outFrom">—</td></tr>
-                    <tr><td class="label">Valid until / Deri</td><td class="value" id="outUntil">—</td></tr>
-                    <tr><td class="label">Type of stay / Tipi i qëndrimit</td><td class="value" id="outType">—</td></tr>
-                    <tr><td class="label">Issued by / Lëshuar nga</td><td class="value" id="outIssued">—</td></tr>
-                    <tr><td class="label">Remarks / Vërejtje</td><td class="value" id="outRemark">—</td></tr>
-                  </table>
+                <span class="status-dot"></span>
 
-                  <div class="controls" style="margin-top:12px;">
-                    <button class="btn-ghost" onclick="window.print()">Print</button>
-                    <button class="btn-ghost" onclick="clearForm()">Back</button>
-                  </div>
+                <span>VERIFIED</span>
 
-                </div>
               </div>
+
             </div>
+
+
+            <div class="result-content">
+
+              <div class="photo">
+
+                <div class="photo-placeholder">
+                  Applicant photo unavailable
+                </div>
+
+              </div>
+
+
+              <div class="information">
+
+                <h3>
+                  Visa information
+                </h3>
+
+                <table>
+
+                  <tr>
+                    <td>Visa number</td>
+                    <td id="outVisa">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Passport number</td>
+                    <td id="outPassport">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Name</td>
+                    <td id="outName">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Nationality</td>
+                    <td id="outNat">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Valid from</td>
+                    <td id="outFrom">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Valid until</td>
+                    <td id="outUntil">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Type of stay</td>
+                    <td id="outType">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Issued by</td>
+                    <td id="outIssued">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Remarks</td>
+                    <td id="outRemark">—</td>
+                  </tr>
+
+                </table>
+
+
+                <div class="result-buttons">
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    onclick="window.print()"
+                  >
+                    Print
+                  </button>
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    onclick="clearForm()"
+                  >
+                    Back
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
-          <div id="errorMessage" class="error-message" role="alert"></div>
 
-        </form>
-      </div>
+        </div>
 
-    </div>
+      </form>
+
+    </section>
+
   </main>
 
-  <footer role="contentinfo">
+
+  <!-- FOOTER -->
+
+  <footer>
+
     <div class="footer-grid">
-      <div>
-        <strong>Application</strong>
-        <ul style="list-style:none;padding-left:0;margin-top:12px;color:#cfcfcf;">
+
+      <div class="footer-column">
+
+        <h3>
+          Application
+        </h3>
+
+        <ul>
           <li>New application</li>
           <li>Ongoing applications</li>
           <li>Track application</li>
         </ul>
+
       </div>
-      <div>
-        <strong>About e-Visa</strong>
-        <ul style="list-style:none;padding-left:0;margin-top:12px;color:#cfcfcf;">
+
+
+      <div class="footer-column">
+
+        <h3>
+          About e-Visa
+        </h3>
+
+        <ul>
           <li>About</li>
           <li>FAQ</li>
           <li>Comments</li>
         </ul>
+
       </div>
-      <div style="max-width:320px;color:#9e9e9e">
-        <small>Verification information is retrieved from the connected service. Protect your personal information and use official channels for assistance.</small>
+
+
+      <div class="footer-info">
+
+        Verification information is retrieved
+        from the connected service.
+
+        <br><br>
+
+        Protect your personal information and
+        use official channels for assistance.
+
       </div>
+
     </div>
+
   </footer>
 
-<script>
-  async function startVerify(){
-    const v = (document.getElementById('visaNumber').value || '').trim();
-    const p = (document.getElementById('passportNumber').value || '').trim();
-    const errorMessage = document.getElementById('errorMessage');
 
-    // Basic input validation
-    if(!v || !p){
-      errorMessage.textContent = 'Please enter both visa and passport numbers.';
-      errorMessage.style.display = 'block';
-      return;
-    }
+  <!-- JAVASCRIPT -->
 
-    // Show a loading state on the Verify button
-    const btn = document.getElementById('verifyBtn');
-    btn.dataset.orig = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner" style="vertical-align:middle;margin-right:8px;"></span> Verifying...';
+  <script>
 
-    errorMessage.style.display = 'none';
-    try {
-      const response = await fetch('/api/visa/verify', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({visaNumber: v, passportNumber: p})
-      });
-      const payload = await response.json();
-      if (!response.ok || !payload.record) {
-        throw new Error(payload.message || 'The visa details could not be verified.');
+    async function startVerify() {
+
+      const visaNumber =
+        document.getElementById("visaNumber").value.trim();
+
+      const passportNumber =
+        document.getElementById("passportNumber").value.trim();
+
+      const errorMessage =
+        document.getElementById("errorMessage");
+
+      const button =
+        document.getElementById("verifyButton");
+
+
+      /* Validate fields */
+
+      if (!visaNumber || !passportNumber) {
+
+        errorMessage.textContent =
+          "Please enter both visa and passport numbers.";
+
+        errorMessage.style.display = "block";
+
+        return;
       }
 
-      btn.disabled = false;
-      btn.innerHTML = btn.dataset.orig;
-      const record = payload.record;
 
-      // Fill UI
-      document.getElementById('outVisa').textContent = record.visa;
-      document.getElementById('outPassport').textContent = record.passport;
-      document.getElementById('outName').textContent = record.name;
-      document.getElementById('outNat').textContent = record.nat;
-      document.getElementById('outFrom').textContent = record.from;
-      document.getElementById('outUntil').textContent = record.until;
-      document.getElementById('outType').textContent = record.type;
-      document.getElementById('outIssued').textContent = record.issued;
-      document.getElementById('outRemark').textContent = record.remark || 'No additional remarks';
+      errorMessage.style.display = "none";
 
-      document.getElementById('resultArea').style.display = 'block';
-      document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'center'});
-    } catch (error) {
-      btn.disabled = false;
-      btn.innerHTML = btn.dataset.orig;
-      errorMessage.textContent = error.message || 'Verification is temporarily unavailable.';
-      errorMessage.style.display = 'block';
+
+      /* Loading */
+
+      button.disabled = true;
+
+      button.innerHTML =
+        '<span class="spinner"></span>Verifying...';
+
+
+      try {
+
+        const response = await fetch(
+          "/api/visa/verify",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              visaNumber: visaNumber,
+              passportNumber: passportNumber
+            })
+          }
+        );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok || !data.record) {
+
+          throw new Error(
+            data.message ||
+            "The visa details could not be verified."
+          );
+        }
+
+
+        const record = data.record;
+
+
+        /* Fill result */
+
+        document.getElementById("outVisa").textContent =
+          record.visa || "—";
+
+        document.getElementById("outPassport").textContent =
+          record.passport || "—";
+
+        document.getElementById("outName").textContent =
+          record.name || "—";
+
+        document.getElementById("outNat").textContent =
+          record.nat || "—";
+
+        document.getElementById("outFrom").textContent =
+          record.from || "—";
+
+        document.getElementById("outUntil").textContent =
+          record.until || "—";
+
+        document.getElementById("outType").textContent =
+          record.type || "—";
+
+        document.getElementById("outIssued").textContent =
+          record.issued || "—";
+
+        document.getElementById("outRemark").textContent =
+          record.remark || "—";
+
+
+        /* Show result */
+
+        document.getElementById("resultArea").style.display =
+          "block";
+
+
+        document.getElementById("resultArea")
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+
+      }
+
+      catch (error) {
+
+        errorMessage.textContent =
+          error.message ||
+          "Verification is temporarily unavailable.";
+
+        errorMessage.style.display =
+          "block";
+
+      }
+
+      finally {
+
+        button.disabled = false;
+
+        button.textContent = "Verify";
+
+      }
+
     }
-  }
 
-  function clearForm(){
-    document.getElementById('visaNumber').value = '';
-    document.getElementById('passportNumber').value = '';
-    document.getElementById('resultArea').style.display = 'none';
-    document.getElementById('errorMessage').style.display = 'none';
-  }
-</script>
+
+    /* Clear form */
+
+    function clearForm() {
+
+      document.getElementById("visaNumber").value = "";
+
+      document.getElementById("passportNumber").value = "";
+
+      document.getElementById("resultArea").style.display =
+        "none";
+
+      document.getElementById("errorMessage").style.display =
+        "none";
+
+    }
+
+  </script>
+
 </body>
 </html>
