@@ -1,1075 +1,303 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Visa Verification</title>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visa Verification Portal</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root{
+      --brand-red:#a71930;
+      --dark:#14212b;
+      --muted:#eef2f4;
+      --panel:#fff;
+      --accent:#213746;
+      --watermark-color: rgba(0,0,0,0.06);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-
-    :root {
-      --red: #f00000;
-      --black: #050000;
-      --background: #edf4f8;
-      --border: #cbd7df;
-      --text: #111111;
+    body{margin:0;background:#eef2f4;color:#1b2932;min-height:100vh;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;}
+    /* Top bar */
+    .topbar{background:var(--dark);color:#fff;padding:14px max(18px,calc((100% - 920px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid #c69c43;}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .crest{
+      width:42px;height:42px;border-radius:50%;background:#fff;color:var(--brand-red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;border:2px solid #c69c43;
     }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
+    .brand-text{line-height:1.25;}
+    .brand-text small{display:block;opacity:.75;font-size:12px;}
+    .auth-buttons button{margin-left:8px;border-radius:2px;padding:.45rem .65rem;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;}
+    /* Header */
+    header.hero{background:var(--brand-red);padding:24px max(18px,calc((100% - 920px)/2));color:#fff;font-weight:700;font-size:25px;letter-spacing:.2px;}
+    /* main */
+    main{flex:1;padding:34px 18px;max-width:920px;margin:0 auto;width:100%;box-sizing:border-box;}
+    .card{background:var(--panel);border-radius:2px;padding:30px;max-width:760px;margin:0 auto;border:1px solid #d3dde2;box-shadow:0 5px 18px rgba(20,33,43,.08);}
+    .form-row{display:flex;justify-content:center;}
+    form{max-width:680px;width:100%;margin:0 auto;}
+    label{display:block;font-size:12px;color:#344650;margin-bottom:7px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+    input[type="text"]{width:100%;box-sizing:border-box;padding:13px;border-radius:2px;border:1px solid #aebdc5;font-size:14px;background:#fff;}
+    input[type="text"]:focus{outline:3px solid rgba(167,25,48,.16);border-color:var(--brand-red);}
+    .btn{
+      display:inline-block;background:var(--brand-red);color:#fff;padding:12px 18px;border-radius:2px;border:none;font-weight:700;cursor:pointer;margin-top:12px;width:100%;
+      box-shadow:0 3px 0 rgba(0,0,0,0.08);
     }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-
-      background: var(--background);
-      color: var(--text);
-
-      font-family: Arial, Helvetica, sans-serif;
+    .row{display:flex;gap:18px;align-items:flex-start;}
+    .col{flex:1;}
+    /* result panel */
+    .result{margin-top:18px;padding:18px;border:1px solid #dcdfe2;border-radius:6px;background:linear-gradient(180deg,#fff,#fbfbfb);position:relative;overflow:hidden;}
+    .watermark{
+      position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-12deg);
+      font-size:64px;color:var(--watermark-color);pointer-events:none;font-weight:800;letter-spacing:8px;
     }
-
-
-    /* =========================
-       TOP HEADER
-       ========================= */
-
-    .topbar {
-      height: 57px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      padding: 0 24px 0 60px;
-
-      background: var(--black);
-      color: white;
+    .status{
+      display:flex;align-items:center;gap:12px;margin-bottom:10px;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .status .dot{width:12px;height:12px;border-radius:50%;background:#4caf50;box-shadow:0 0 10px rgba(76,175,80,0.35);}
+    .details{display:grid;grid-template-columns: 220px 1fr;gap:22px;align-items:start;}
+    .photo{width:100%;background:#f6f8fa;border:1px dashed #d7dade;padding:8px;border-radius:4px;display:flex;align-items:center;justify-content:center;}
+    .photo img{width:190px;height:235px;object-fit:cover;border-radius:2px;border:1px solid #ccc;}
+    .photo-upload{margin-top:10px;width:100%;font-size:12px;color:#52636d;}
+    .photo-upload input{display:block;width:100%;margin-top:6px;font-size:12px;}
+    .doc{border-left:1px solid rgba(0,0,0,0.04);padding-left:16px;}
+    .doc h3{margin:0 0 8px 0;}
+    .doc table{width:100%;font-size:14px;border-collapse:collapse;}
+    .doc td{padding:6px 4px;vertical-align:top;border-bottom:1px dashed #eee;}
+    .doc td.label{width:42%;font-weight:700;color:#333;}
+    .doc td.value{color:#222;}
+    /* small controls */
+    .controls{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+    .btn-ghost{background:transparent;border:1px solid #ccc;padding:8px 12px;border-radius:6px;cursor:pointer;}
+    /* footer */
+    footer{background:#14212b;color:#fff;padding:25px 18px;margin-top:28px;}
+    .footer-grid{max-width:920px;margin:0 auto;display:flex;justify-content:space-between;gap:40px;}
+    /* spinner */
+    .spinner{width:20px;height:20px;border-radius:50%;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--brand-red);animation:spin 1s linear infinite;display:inline-block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* print style */
+    @media print{
+      header.topbar, header.hero, .controls, .auth-buttons{display:none}
+      body{background:white}
+      .watermark{display:none}
     }
-
-    .brand-logo {
-      width: 58px;
-      height: 31px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border: 1px solid white;
-
-      color: white;
-
-      font-size: 12px;
-      font-weight: bold;
-      letter-spacing: .5px;
-    }
-
-    .brand-text {
-      line-height: 1.1;
-    }
-
-    .brand-text strong {
-      display: block;
-
-      font-size: 11px;
-      font-weight: 400;
-    }
-
-    .brand-text small {
-      display: block;
-
-      margin-top: 3px;
-
-      color: #a6adb1;
-      font-size: 9px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .header-button {
-      height: 43px;
-
-      padding: 0 15px;
-
-      border: 1px solid var(--red);
-      border-radius: 7px;
-
-      background: transparent;
-      color: white;
-
-      font-size: 14px;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-    .header-button.login {
-      background: var(--red);
-    }
-
-    .language {
-      display: flex;
-      align-items: center;
-    }
-
-    .language span {
-      height: 25px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      padding: 0 8px;
-
-      border: 1px solid var(--red);
-
-      color: white;
-
-      font-size: 13px;
-    }
-
-    .language span:first-child {
-      border-right: 0;
-      border-radius: 6px 0 0 6px;
-    }
-
-    .language span:last-child {
-      border-radius: 0 6px 6px 0;
-    }
-
-
-    /* =========================
-       RED TITLE BAR
-       ========================= */
-
-    .hero {
-      height: 69px;
-
-      display: flex;
-      align-items: center;
-
-      padding-left: 60px;
-
-      background: var(--red);
-      color: white;
-
-      font-size: 30px;
-      font-weight: bold;
-    }
-
-
-    /* =========================
-       MAIN
-       ========================= */
-
-    main {
-      flex: 1;
-
-      padding: 48px 24px 49px;
-
-      background: var(--background);
-    }
-
-    .card {
-      width: 100%;
-      max-width: 1216px;
-
-      min-height: 280px;
-
-      margin: 0 auto;
-
-      padding: 36px 20px;
-
-      background: white;
-
-      border: 1px solid var(--border);
-      border-radius: 5px;
-    }
-
-    .form {
-      width: 384px;
-      max-width: 100%;
-
-      margin: 0 auto;
-    }
-
-
-    /* =========================
-       FORM
-       ========================= */
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-
-      margin-bottom: 7px;
-
-      color: #111;
-
-      font-size: 15px;
-    }
-
-    input {
-      width: 100%;
-      height: 43px;
-
-      padding: 0 13px;
-
-      border: 1px solid #c5d1db;
-      border-radius: 6px;
-
-      background: white;
-
-      color: #222;
-
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 15px;
-
-      outline: none;
-    }
-
-    input::placeholder {
-      color: #a9b5c0;
-    }
-
-    input:focus {
-      border-color: var(--red);
-
-      box-shadow: 0 0 0 2px rgba(240, 0, 0, .08);
-    }
-
-    .verify-button {
-      width: 100%;
-      height: 43px;
-
-      margin-top: -4px;
-
-      border: 0;
-      border-radius: 6px;
-
-      background: var(--red);
-      color: white;
-
-      font-size: 15px;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-    .verify-button:hover {
-      background: #d90000;
-    }
-
-    .verify-button:disabled {
-      opacity: .7;
-      cursor: wait;
-    }
-
-
-    /* =========================
-       ERROR
-       ========================= */
-
-    .error {
-      display: none;
-
-      margin-top: 14px;
-      padding: 11px 13px;
-
-      border-left: 3px solid var(--red);
-
-      background: #fff1f1;
-      color: #8b1515;
-
-      font-size: 13px;
-    }
-
-
-    /* =========================
-       RESULT
-       ========================= */
-
-    #resultArea {
-      display: none;
-
-      width: 100%;
-      max-width: 900px;
-
-      margin: 28px auto 0;
-    }
-
-    .result {
-      padding: 22px;
-
-      background: white;
-
-      border: 1px solid #d7dfe4;
-      border-radius: 5px;
-    }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      padding-bottom: 14px;
-      margin-bottom: 18px;
-
-      border-bottom: 1px solid #e5eaed;
-    }
-
-    .result-title {
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .result-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      color: #2e7d32;
-
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-
-      border-radius: 50%;
-
-      background: #4caf50;
-    }
-
-    .result-content {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 25px;
-    }
-
-    .photo {
-      min-height: 260px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: #f4f7f9;
-
-      border: 1px dashed #ccd5db;
-      border-radius: 4px;
-    }
-
-    .photo-placeholder {
-      width: 180px;
-      height: 225px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      text-align: center;
-
-      background: #e9eef1;
-
-      border: 1px solid #ccd5da;
-
-      color: #687782;
-
-      font-size: 13px;
-    }
-
-    .information h3 {
-      margin: 0 0 12px;
-
-      font-size: 17px;
-    }
-
-    table {
-      width: 100%;
-
-      border-collapse: collapse;
-
-      font-size: 14px;
-    }
-
-    td {
-      padding: 8px 5px;
-
-      border-bottom: 1px dashed #e4e8eb;
-
-      vertical-align: top;
-    }
-
-    td:first-child {
-      width: 42%;
-
-      font-weight: bold;
-    }
-
-    .result-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-
-      margin-top: 15px;
-    }
-
-    .secondary-button {
-      padding: 8px 14px;
-
-      border: 1px solid #b8c4cc;
-      border-radius: 4px;
-
-      background: white;
-
-      cursor: pointer;
-    }
-
-
-    /* =========================
-       FOOTER
-       ========================= */
-
-    footer {
-      min-height: 296px;
-
-      padding: 91px 60px 20px;
-
-      background: var(--black);
-      color: white;
-    }
-
-    .footer-grid {
-      width: 100%;
-      max-width: 1100px;
-
-      margin: 0 auto;
-
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-
-      gap: 90px;
-    }
-
-    .footer-column h3 {
-      margin: 0 0 18px;
-
-      font-size: 20px;
-    }
-
-    .footer-column ul {
-      list-style: none;
-
-      margin: 0;
-      padding: 0;
-    }
-
-    .footer-column li {
-      margin-bottom: 7px;
-
-      font-size: 15px;
-    }
-
-    .footer-info {
-      color: #8aa2b0;
-
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-
-    /* =========================
-       LOADING
-       ========================= */
-
-    .spinner {
-      width: 17px;
-      height: 17px;
-
-      display: inline-block;
-      vertical-align: middle;
-
-      margin-right: 7px;
-
-      border: 2px solid rgba(255,255,255,.35);
-      border-top-color: white;
-
-      border-radius: 50%;
-
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-
-    /* =========================
-       MOBILE
-       ========================= */
-
-    @media (max-width: 800px) {
-
-      .topbar {
-        padding: 10px 20px;
-      }
-
-      .hero {
-        padding-left: 20px;
-        font-size: 27px;
-      }
-
-      main {
-        padding: 28px 15px;
-      }
-
-      footer {
-        padding: 50px 25px 25px;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
-      }
-
-      .footer-info {
-        grid-column: 1 / -1;
-      }
-
-      .result-content {
-        grid-template-columns: 1fr;
-      }
-    }
-
-
-    @media (max-width: 500px) {
-
-      .brand-text {
-        display: none;
-      }
-
-      .language {
-        display: none;
-      }
-
-      .topbar {
-        padding: 10px 15px;
-      }
-
-      .hero {
-        padding-left: 15px;
-        font-size: 24px;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 30px;
-      }
-
-      .footer-info {
-        grid-column: auto;
-      }
-    }
-
-
-    /* =========================
-       PRINT
-       ========================= */
-
-    @media print {
-
-      .topbar,
-      .hero,
-      footer,
-      .result-buttons {
-        display: none;
-      }
-
-      body {
-        background: white;
-      }
-
-      main {
-        padding: 0;
-      }
+    .results-page{display:none !important;}
+    body.show-results .verify-intro,
+    body.show-results .verify-fields,
+    body.show-results .form-actions{display:none !important;}
+    body.show-results .results-page{display:block !important;}
+    body.show-results .hero{font-size:0;}
+    body.show-results .hero::after{content:"Verification result";font-size:28px;}
+    .error-message{display:none;margin-top:14px;padding:12px 14px;border-left:4px solid var(--brand-red);background:#fff1f1;color:#7e1717;}
+    @media (max-width: 620px){
+      .topbar{padding:12px 14px;}
+      .auth-buttons{display:none;}
+      header.hero{padding:21px 18px;font-size:22px;}
+      main{padding:20px 12px;}
+      .card{padding:22px 16px;}
+      .verify-fields{grid-template-columns:1fr !important;}
+      .form-actions{flex-direction:column;}
+      .form-actions .btn,.form-actions .btn-ghost{width:100%;box-sizing:border-box;}
+      .details{grid-template-columns:1fr;}
+      .doc{border-left:0;border-top:1px solid #e2e7ea;padding:18px 0 0;}
+      .footer-grid{display:block;}
+      .footer-grid > div{margin-bottom:20px;}
     }
   </style>
 </head>
-
-
 <body>
-
-
-  <!-- HEADER -->
-
-  <header class="topbar">
-
-    <div class="brand">
-
-      <div class="brand-logo">
-        eVISA
-      </div>
-
+  <div class="topbar" role="banner">
+    <div class="brand" aria-hidden="true">
+      <div class="crest" title="Placeholder crest">CR</div>
       <div class="brand-text">
-        <strong>Visa Verification Portal</strong>
-        <small>Electronic visa services</small>
+        <strong>e-Visa Verification Portal</strong>
+        <small>Immigration and visa services</small>
       </div>
-
     </div>
-
-
-    <div class="header-right">
-
-      <button class="header-button login">
-        Log in
-      </button>
-
-      <button class="header-button">
-        Register
-      </button>
-
-      <div class="language">
-        <span>EN</span>
-        <span>AL</span>
-      </div>
-
+    <div class="auth-buttons" aria-hidden="true">
+      <button>Log in</button><button>Register</button>
     </div>
-
-  </header>
-
-
-  <!-- TITLE -->
-
-  <div class="hero">
-    Verify visa
   </div>
 
-
-  <!-- MAIN -->
+  <header class="hero" role="heading" aria-level="1">
+    Verify visa
+  </header>
 
   <main>
-
-    <section class="card">
-
-      <form
-        id="verifyForm"
-        class="form"
-        onsubmit="return false;"
-      >
-
-        <div class="form-group">
-
-          <label for="visaNumber">
-            Visa Number
-          </label>
-
-          <input
-            id="visaNumber"
-            type="text"
-            placeholder="Visa Number"
-            autocomplete="off"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="passportNumber">
-            Passport Number
-          </label>
-
-          <input
-            id="passportNumber"
-            type="text"
-            placeholder="Passport Number"
-            autocomplete="off"
-          >
-
-        </div>
-
-
-        <button
-          id="verifyButton"
-          class="verify-button"
-          type="button"
-          onclick="startVerify()"
-        >
-          Verify
-        </button>
-
-
-        <div
-          id="errorMessage"
-          class="error"
-        ></div>
-
-
-        <!-- RESULT -->
-
-        <div id="resultArea">
-
-          <div class="result">
-
-            <div class="result-header">
-
-              <div class="result-title">
-                Verification result
-              </div>
-
-              <div class="result-status">
-
-                <span class="status-dot"></span>
-
-                <span>VERIFIED</span>
-
-              </div>
-
-            </div>
-
-
-            <div class="result-content">
-
-              <div class="photo">
-
-                <div class="photo-placeholder">
-                  Applicant photo unavailable
-                </div>
-
-              </div>
-
-
-              <div class="information">
-
-                <h3>
-                  Visa information
-                </h3>
-
-                <table>
-
-                  <tr>
-                    <td>Visa number</td>
-                    <td id="outVisa">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Passport number</td>
-                    <td id="outPassport">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Name</td>
-                    <td id="outName">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Nationality</td>
-                    <td id="outNat">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Valid from</td>
-                    <td id="outFrom">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Valid until</td>
-                    <td id="outUntil">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Type of stay</td>
-                    <td id="outType">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Issued by</td>
-                    <td id="outIssued">—</td>
-                  </tr>
-
-                  <tr>
-                    <td>Remarks</td>
-                    <td id="outRemark">—</td>
-                  </tr>
-
-                </table>
-
-
-                <div class="result-buttons">
-
-                  <button
-                    class="secondary-button"
-                    type="button"
-                    onclick="window.print()"
-                  >
-                    Print
-                  </button>
-
-                  <button
-                    class="secondary-button"
-                    type="button"
-                    onclick="clearForm()"
-                  >
-                    Back
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
+    <div class="card" role="main" aria-labelledby="verify-title" style="position:relative;">
+      <div style="max-width:900px;margin:0 auto;">
+        <form id="verifyForm" onsubmit="return false;" aria-labelledby="verify-title">
+          <div class="verify-intro" style="text-align:center;margin-bottom:12px;">
+            <p style="margin:0;color:#666;">Enter your visa and passport numbers to view the verification details.</p>
           </div>
 
-        </div>
+          <div class="verify-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label for="visaNumber">Visa Number</label>
+              <input id="visaNumber" type="text" placeholder="Visa Number (e.g., IST-...)" autocomplete="off" />
+            </div>
+            <div>
+              <label for="passportNumber">Passport Number</label>
+              <input id="passportNumber" type="text" placeholder="Passport Number (e.g., XA...)" autocomplete="off" />
+            </div>
+          </div>
 
-      </form>
+          <div class="form-actions" style="display:flex;gap:12px;margin-top:14px;">
+            <button id="verifyBtn" class="btn" type="button" onclick="startVerify()">Verify</button>
+            <button class="btn-ghost" type="button" onclick="clearForm()">Back</button>
+          </div>
 
-    </section>
+          <div id="resultArea" class="results-page" style="margin-top:18px;">
+            <div class="result" role="region" aria-live="polite" aria-label="Verification result">
+              <div class="status">
+                <div style="flex:1">
+                  <strong style="font-size:16px;color:#222">Visa Status</strong>
+                </div>
+                <div style="text-align:right;">
+                  <span class="dot" aria-hidden="true"></span>
+                  <span style="font-weight:700;color:#996300"> RECEIVED</span>
+                </div>
+              </div>
 
+              <div class="details">
+                <div class="col photo" aria-hidden="true">
+                  <div>
+                    <img id="appPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='470'><rect width='100%' height='100%' fill='%23edf1f3'/><circle cx='190' cy='170' r='62' fill='%23b9c5ca'/><path d='M78 390c10-85 55-125 112-125s102 40 112 125' fill='%23b9c5ca'/></svg>" alt="Applicant photo">
+                    <label class="photo-upload" for="photoInput">Applicant photo (authorized upload)
+                      <input id="photoInput" type="file" accept="image/jpeg,image/png" onchange="previewPhoto(event)">
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col doc">
+                  <h3>Visa information / Të dhënat e vizës</h3>
+                  <table>
+                    <tr><td class="label">Visa number / Numri i vizës</td><td class="value" id="outVisa">—</td></tr>
+                    <tr><td class="label">Passport number / Numri i pasaportës</td><td class="value" id="outPassport">—</td></tr>
+                    <tr><td class="label">Name / Emri</td><td class="value" id="outName">—</td></tr>
+                    <tr><td class="label">Nationality / Shtetësia</td><td class="value" id="outNat">—</td></tr>
+                    <tr><td class="label">Valid from / E vlefshme nga</td><td class="value" id="outFrom">—</td></tr>
+                    <tr><td class="label">Valid until / Deri</td><td class="value" id="outUntil">—</td></tr>
+                    <tr><td class="label">Type of stay / Tipi i qëndrimit</td><td class="value" id="outType">—</td></tr>
+                    <tr><td class="label">Issued by / Lëshuar nga</td><td class="value" id="outIssued">—</td></tr>
+                  </table>
+
+                  <div class="controls" style="margin-top:12px;">
+                    <button class="btn-ghost" onclick="window.print()">Print</button>
+                    <button class="btn-ghost" onclick="clearForm()">Back</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="errorMessage" class="error-message" role="alert"></div>
+
+        </form>
+      </div>
+
+    </div>
   </main>
 
-
-  <!-- FOOTER -->
-
-  <footer>
-
+  <footer role="contentinfo">
     <div class="footer-grid">
-
-      <div class="footer-column">
-
-        <h3>
-          Application
-        </h3>
-
-        <ul>
+      <div>
+        <strong>Application</strong>
+        <ul style="list-style:none;padding-left:0;margin-top:12px;color:#cfcfcf;">
           <li>New application</li>
           <li>Ongoing applications</li>
           <li>Track application</li>
         </ul>
-
       </div>
-
-
-      <div class="footer-column">
-
-        <h3>
-          About e-Visa
-        </h3>
-
-        <ul>
+      <div>
+        <strong>About e-Visa</strong>
+        <ul style="list-style:none;padding-left:0;margin-top:12px;color:#cfcfcf;">
           <li>About</li>
           <li>FAQ</li>
           <li>Comments</li>
         </ul>
-
       </div>
-
-
-      <div class="footer-info">
-
-        Verification information is retrieved
-        from the connected service.
-
-        <br><br>
-
-        Protect your personal information and
-        use official channels for assistance.
-
+      <div style="max-width:320px;color:#9e9e9e">
+        <small>Verification information is retrieved from the connected service. Protect your personal information and use official channels for assistance.</small>
       </div>
-
     </div>
-
   </footer>
 
+<script>
+  async function startVerify(){
+    const v = (document.getElementById('visaNumber').value || '').trim();
+    const p = (document.getElementById('passportNumber').value || '').trim();
+    const errorMessage = document.getElementById('errorMessage');
 
-  <!-- JAVASCRIPT -->
-
-  <script>
-
-    async function startVerify() {
-
-      const visaNumber =
-        document.getElementById("visaNumber").value.trim();
-
-      const passportNumber =
-        document.getElementById("passportNumber").value.trim();
-
-      const errorMessage =
-        document.getElementById("errorMessage");
-
-      const button =
-        document.getElementById("verifyButton");
-
-
-      /* Validate fields */
-
-      if (!visaNumber || !passportNumber) {
-
-        errorMessage.textContent =
-          "Please enter both visa and passport numbers.";
-
-        errorMessage.style.display = "block";
-
-        return;
-      }
-
-
-      errorMessage.style.display = "none";
-
-
-      /* Loading */
-
-      button.disabled = true;
-
-      button.innerHTML =
-        '<span class="spinner"></span>Verifying...';
-
-
-      try {
-
-        const response = await fetch(
-          "/api/visa/verify",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-              visaNumber: visaNumber,
-              passportNumber: passportNumber
-            })
-          }
-        );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok || !data.record) {
-
-          throw new Error(
-            data.message ||
-            "The visa details could not be verified."
-          );
-        }
-
-
-        const record = data.record;
-
-
-        /* Fill result */
-
-        document.getElementById("outVisa").textContent =
-          record.visa || "—";
-
-        document.getElementById("outPassport").textContent =
-          record.passport || "—";
-
-        document.getElementById("outName").textContent =
-          record.name || "—";
-
-        document.getElementById("outNat").textContent =
-          record.nat || "—";
-
-        document.getElementById("outFrom").textContent =
-          record.from || "—";
-
-        document.getElementById("outUntil").textContent =
-          record.until || "—";
-
-        document.getElementById("outType").textContent =
-          record.type || "—";
-
-        document.getElementById("outIssued").textContent =
-          record.issued || "—";
-
-        document.getElementById("outRemark").textContent =
-          record.remark || "—";
-
-
-        /* Show result */
-
-        document.getElementById("resultArea").style.display =
-          "block";
-
-
-        document.getElementById("resultArea")
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
-
-      }
-
-      catch (error) {
-
-        errorMessage.textContent =
-          error.message ||
-          "Verification is temporarily unavailable.";
-
-        errorMessage.style.display =
-          "block";
-
-      }
-
-      finally {
-
-        button.disabled = false;
-
-        button.textContent = "Verify";
-
-      }
-
+    // Basic input validation
+    if(!v || !p){
+      errorMessage.textContent = 'Please enter both visa and passport numbers.';
+      errorMessage.style.display = 'block';
+      return;
     }
 
+    // Show a loading state on the Verify button
+    const btn = document.getElementById('verifyBtn');
+    btn.dataset.orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="vertical-align:middle;margin-right:8px;"></span> Verifying...';
 
-    /* Clear form */
+    errorMessage.style.display = 'none';
+    try {
+      const response = await fetch('/api/visa/verify', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({visaNumber: v, passportNumber: p})
+      });
+      const payload = await response.json();
+      const record = payload.record || {
+        visa: v.toUpperCase(),
+        passport: p.toUpperCase(),
+        name: 'Not available',
+        nat: 'Not available',
+        from: 'Not available',
+        until: 'Not available',
+        type: 'Not available',
+        issued: 'Not available'
+      };
+      if (!response.ok) throw new Error(payload.message || 'Verification could not be completed.');
 
-    function clearForm() {
+      btn.disabled = false;
+      btn.innerHTML = btn.dataset.orig;
 
-      document.getElementById("visaNumber").value = "";
-
-      document.getElementById("passportNumber").value = "";
-
-      document.getElementById("resultArea").style.display =
-        "none";
-
-      document.getElementById("errorMessage").style.display =
-        "none";
-
+      // Fill UI
+      document.getElementById('outVisa').textContent = record.visa;
+      document.getElementById('outPassport').textContent = record.passport;
+      document.getElementById('outName').textContent = record.name;
+      document.getElementById('outNat').textContent = record.nat;
+      document.getElementById('outFrom').textContent = record.from;
+      document.getElementById('outUntil').textContent = record.until;
+      document.getElementById('outType').textContent = record.type;
+      document.getElementById('outIssued').textContent = record.issued;
+      document.body.classList.add('show-results');
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    } catch (error) {
+      btn.disabled = false;
+      btn.innerHTML = btn.dataset.orig;
+      errorMessage.textContent = error.message || 'Verification is temporarily unavailable.';
+      errorMessage.style.display = 'block';
     }
+  }
 
-  </script>
+  function previewPhoto(event){
+    const file = event.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){
+      document.getElementById('appPhoto').src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
 
+  function clearForm(){
+    document.getElementById('visaNumber').value = '';
+    document.getElementById('passportNumber').value = '';
+    document.body.classList.remove('show-results');
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('photoInput').value = '';
+    document.getElementById('appPhoto').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='470'><rect width='100%' height='100%' fill='%23edf1f3'/><circle cx='190' cy='170' r='62' fill='%23b9c5ca'/><path d='M78 390c10-85 55-125 112-125s102 40 112 125' fill='%23b9c5ca'/></svg>";
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+</script>
 </body>
 </html>
