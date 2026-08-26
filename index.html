@@ -73,7 +73,7 @@
       body{background:white}
       .watermark{display:none}
     }
-    /* Demo label */
+    /*  */
     .demo-note{position:absolute;right:14px;top:14px;background:rgba(0,0,0,0.08);padding:6px 10px;border-radius:6px;font-weight:700;color:#800;}
   </style>
 </head>
@@ -82,8 +82,8 @@
     <div class="brand" aria-hidden="true">
       <div class="crest" title="Placeholder crest">CR</div>
       <div class="brand-text">
-        <strong>e-Visa Demo Portal</strong>
-        <small>Demo — NOT OFFICIAL</small>
+        <strong>e-Visa Verification Portal</strong>
+        <small>Manistory of Albania</small>
       </div>
     </div>
     <div class="auth-buttons" aria-hidden="true">
@@ -97,22 +97,22 @@
 
   <main>
     <div class="card" role="main" aria-labelledby="verify-title" style="position:relative;">
-      <div class="demo-note">DEMO — NOT OFFICIAL</div>
+      <div class="demo-note">Manistory of Albania</div>
 
       <div style="max-width:900px;margin:0 auto;">
         <form id="verifyForm" onsubmit="return false;" aria-labelledby="verify-title">
           <div style="text-align:center;margin-bottom:12px;">
-            <p style="margin:0;color:#666;">Enter visa number and passport number to see a demo verification result.</p>
+            <p style="margin:0;color:#666;">Enter visa number and passport number to see verification result.</p>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               <label for="visaNumber">Visa Number</label>
-              <input id="visaNumber" type="text" placeholder="Visa Number (e.g., IST-...)" autocomplete="off" />
+              <input id="visaNumber" type="text" placeholder="Visa Number (AL0023467e )" autocomplete="off" />
             </div>
             <div>
               <label for="passportNumber">Passport Number</label>
-              <input id="passportNumber" type="text" placeholder="Passport Number (e.g., XA...)" autocomplete="off" />
+              <input id="passportNumber" type="text" placeholder="Passport Number (XA6897684 )" autocomplete="off" />
             </div>
           </div>
 
@@ -123,7 +123,6 @@
 
           <div id="resultArea" style="display:none;margin-top:18px;">
             <div class="result" role="region" aria-live="polite" aria-label="Verification result">
-              <div class="watermark">SAMPLE DEMO</div>
               <div class="status">
                 <div style="flex:1">
                   <strong style="font-size:16px;color:#222">Visa Status</strong>
